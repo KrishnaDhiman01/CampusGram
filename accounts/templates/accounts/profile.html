@@ -1,0 +1,30 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div style="text-align: center; margin-top: 50px;">
+    
+    <img src="{{ user_obj.profile.profile_img.url }}" 
+         style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #ddd;">
+    
+    <h1>@{{ user_obj.username }}</h1>
+    
+    <p style="font-size: 1.2rem; color: #555;">
+        {{ user_obj.profile.bio|default:"No bio yet." }}
+    </p>
+
+    {% if request.user == user_obj %}
+        <a href="{% url 'edit_profile' %}" style="background: #efefef; padding: 5px 10px; text-decoration: none; color: black; border-radius: 5px;">Edit Profile</a>
+    {% else %}
+        <button style="background: #0095f6; color: white; border: none; padding: 5px 20px; border-radius: 5px;">Follow</button>
+    {% endif %}
+
+    <hr style="margin-top: 30px;">
+    
+    <div style="display: flex; justify-content: center; gap: 30px;">
+        <div><strong>0</strong> Posts</div>
+        <div><strong>0</strong> Followers</div>
+        <div><strong>0</strong> Following</div>
+    </div>
+
+</div>
+{% endblock %}

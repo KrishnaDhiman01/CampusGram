@@ -1,0 +1,10 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div style="text-align: center; margin-top: 50px;">
+    <h2>You have been logged out.</h2>
+    <p>See you next time!</p>
+    <br>
+    <a href="{% url 'login' %}" style="background: #0095f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Log In Again</a>
+</div>
+{% endblock %}

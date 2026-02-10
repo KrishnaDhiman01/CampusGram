@@ -1,0 +1,17 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<h2>Edit Profile</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <p>Update Bio:</p>
+    <textarea name="bio" rows="4" cols="50">{{ user.profile.bio }}</textarea>
+    
+    <p>Change Profile Image:</p>
+    <input type="file" name="profile_img">
+    
+    <br><br>
+    <button type="submit" style="background: #0095f6; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Save Changes</button>
+</form>
+{% endblock %}
