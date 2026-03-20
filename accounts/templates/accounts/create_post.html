@@ -1,0 +1,24 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div class="card">
+            <h2>Create Post</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label style="font-weight: 600;">Image</label>
+                <input type="file" name="image" accept="image/*">
+                
+                <label style="font-weight: 600;">Caption</label>
+                <textarea name="caption" rows="4" placeholder="Write a caption..."></textarea>
+
+                <button type="submit">Post</button>
+            </form>
+            <div style="margin-top: 14px;">
+                <a href="{% url 'feed' %}" class="button-secondary">Back to Feed</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -15,16 +15,34 @@
     {% if request.user == user_obj %}
         <a href="{% url 'edit_profile' %}" style="background: #efefef; padding: 5px 10px; text-decoration: none; color: black; border-radius: 5px;">Edit Profile</a>
     {% else %}
-        <button style="background: #0095f6; color: white; border: none; padding: 5px 20px; border-radius: 5px;">Follow</button>
+        <a href="{% url 'follow_user' user_obj.username %}" style="background: {% if is_following %}#ccc{% else %}#0095f6{% endif %}; color: white; padding: 5px 20px; text-decoration: none; border-radius: 5px;">{% if is_following %}Unfollow{% else %}Follow{% endif %}</a>
     {% endif %}
 
     <hr style="margin-top: 30px;">
     
     <div style="display: flex; justify-content: center; gap: 30px;">
-        <div><strong>0</strong> Posts</div>
-        <div><strong>0</strong> Followers</div>
-        <div><strong>0</strong> Following</div>
+        <div><strong>{{ posts|length }}</strong> Posts</div>
+        <div><strong>{{ followers_count }}</strong> Followers</div>
+        <div><strong>{{ following_count }}</strong> Following</div>
     </div>
 
+</div>
+
+<div style="max-width: 600px; margin: 20px auto;">
+    <h3>Posts</h3>
+    {% for post in posts %}
+    <div style="border: 1px solid #ddd; margin-bottom: 20px; padding: 15px; border-radius: 10px;">
+        {% if post.image %}
+        <img src="{{ post.image.url }}" style="width: 100%; border-radius: 10px; margin-bottom: 10px;">
+        {% endif %}
+        <p>{{ post.caption }}</p>
+        <small style="color: grey;">{{ post.created_at|date:"M d, Y H:i" }}</small>
+        <div style="margin-top: 10px;">
+            <span style="color: red;">❤️ {{ post.like_set.count }}</span>
+        </div>
+    </div>
+    {% empty %}
+    <p>No posts yet.</p>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -2,18 +2,35 @@
 
 {% block content %}
     <h2>Sign Up</h2>
-    <form method="POST">
+    <form method="POST" id="signup-form">
         {% csrf_token %}
         {% for field in form %}
             <p>
                 {{ field.label_tag }}<br>
                 {{ field }}
+                {% if field.errors %}
+                    <small style="color: red">{{ field.errors }}</small>
+                {% endif %}
                 {% if field.help_text %}
                     <small style="color: grey">{{ field.help_text }}</small>
                 {% endif %}
             </p>
         {% endfor %}
+        {% if form.non_field_errors %}
+            <p style="color: red">{{ form.non_field_errors }}</p>
+        {% endif %}
         <button type="submit">Sign Up</button>
     </form>
     <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            const password1 = document.getElementById('id_password1').value;
+            const password2 = document.getElementById('id_password2').value;
+            if (password1 !== password2) {
+                e.preventDefault();
+                alert('Passwords do not match.');
+            }
+        });
+    </script>
 {% endblock %}
