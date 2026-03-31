@@ -11,7 +11,7 @@ urlpatterns = [
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('profile/<str:username>/', views.profile_view, name='profile'),
     path('edit-profile/', views.edit_profile_view, name='edit_profile'),
-    path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+   path('logout/', views.logout_view, name='logout'),
     
     # Social features
     path('create-post/', views.create_post_view, name='create_post'),

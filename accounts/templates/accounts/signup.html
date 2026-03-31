@@ -1,36 +1,131 @@
-{% extends 'accounts/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - CampusGram</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Standalone Base CSS */
+        body { margin: 0; padding: 0; background: #0a0a11; font-family: 'DM Sans', sans-serif; color: #fff; }
+        .main { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+        
+        /* Left Panel */
+        .left-panel { display: flex; align-items: center; justify-content: center; padding: 60px 48px; border-right: 0.5px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+        .left-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 40%, rgba(108,99,255,0.12) 0%, transparent 65%), radial-gradient(ellipse at 70% 70%, rgba(180,99,255,0.06) 0%, transparent 60%); }
+        .left-content { position: relative; z-index: 1; max-width: 380px; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(108,99,255,0.15); border: 0.5px solid rgba(108,99,255,0.35); border-radius: 20px; font-size: 12px; color: #a09cff; letter-spacing: 0.5px; margin-bottom: 28px; }
+        .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: #6c63ff; flex-shrink: 0; }
+        .hero-title { font-family: 'DM Serif Display', serif; font-size: 3.2rem; line-height: 1.1; letter-spacing: -1px; margin-top: 0; margin-bottom: 18px; }
+        .hero-title em { font-style: italic; color: #9d96ff; }
+        .hero-sub { font-size: 15px; color: rgba(255,255,255,0.4); line-height: 1.6; font-weight: 300; margin: 0; }
 
-{% block content %}
-    <h2>Sign Up</h2>
-    <form method="POST" id="signup-form">
-        {% csrf_token %}
-        {% for field in form %}
-            <p>
-                {{ field.label_tag }}<br>
-                {{ field }}
-                {% if field.errors %}
-                    <small style="color: red">{{ field.errors }}</small>
+        /* Right Panel (Signup) */
+        .right-panel { display: flex; align-items: center; justify-content: center; padding: 40px 48px; background: #0a0a11; overflow-y: auto; }
+        .signup-box { width: 100%; max-width: 380px; }
+        .signup-heading { font-family: 'DM Serif Display', serif; font-size: 1.9rem; letter-spacing: -0.5px; margin-top: 0; margin-bottom: 6px; }
+        .signup-sub { font-size: 14px; color: rgba(255,255,255,0.35); font-weight: 300; margin-bottom: 32px; margin-top: 0; }
+
+        /* Form Styling */
+        form { display: block; margin: 0; padding: 0; border: none; background: transparent; width: 100%; text-align: left; }
+        .field { margin-bottom: 18px; }
+        .field label { display: block; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.45); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 8px; }
+        
+        .field input { display: block; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 16px; font-size: 14px; color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 300; outline: none; transition: border-color 0.2s; margin-bottom: 0; }
+        .field input:focus { border-color: rgba(108,99,255,0.5); background: rgba(108,99,255,0.05); }
+
+        .help-text { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 6px; display: block; line-height: 1.4; }
+        .field-error { font-size: 12px; color: #ff8a8a; margin-top: 6px; display: block; }
+        .alert-danger { background: rgba(220,53,69,0.15); border: 0.5px solid rgba(220,53,69,0.35); color: #ff8a8a; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 20px; text-align: center; }
+
+        .btn-signup { background: #6c63ff; color: #fff; padding: 14px; border: none; border-radius: 10px; width: 100%; font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        .btn-signup:hover { background: #5a52e0; }
+
+        .divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+        .divider-line { flex: 1; height: 0.5px; background: rgba(255,255,255,0.08); }
+        .divider-text { font-size: 12px; color: rgba(255,255,255,0.2); white-space: nowrap; }
+
+        .login-row { text-align: center; font-size: 13px; color: rgba(255,255,255,0.3); font-weight: 300; margin: 0; }
+        .login-row a { color: #9d96ff; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .login-row a:hover { color: #bcb8ff; }
+    </style>
+</head>
+<body>
+
+<div class="main">
+    <div class="left-panel">
+        <div class="left-bg"></div>
+        <div class="left-content">
+            <div class="eyebrow">
+                <div class="eyebrow-dot"></div>
+                Join your campus
+            </div>
+            <h1 class="hero-title">Start your <em>story</em> here.</h1>
+            <p class="hero-sub">Create an account and connect with your university community — clubs, events, and everything in between.</p>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="signup-box">
+            <h2 class="signup-heading">Create account</h2>
+            <p class="signup-sub">Join CampusGram today</p>
+
+            <form method="POST" id="signup-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert-danger">{{ form.non_field_errors }}</div>
                 {% endif %}
-                {% if field.help_text %}
-                    <small style="color: grey">{{ field.help_text }}</small>
-                {% endif %}
+
+                {% for field in form %}
+                    <div class="field">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="field-error">{{ field.errors|striptags }}</span>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="help-text">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn-signup">Sign Up</button>
+            </form>
+
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">already have an account?</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <p class="login-row">
+                <a href="{% url 'login' %}">Log in instead &rarr;</a>
             </p>
-        {% endfor %}
-        {% if form.non_field_errors %}
-            <p style="color: red">{{ form.non_field_errors }}</p>
-        {% endif %}
-        <button type="submit">Sign Up</button>
-    </form>
-    <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+        </div>
+    </div>
+</div>
 
-    <script>
-        document.getElementById('signup-form').addEventListener('submit', function(e) {
-            const password1 = document.getElementById('id_password1').value;
-            const password2 = document.getElementById('id_password2').value;
-            if (password1 !== password2) {
+<script>
+    // JS Validation for matching passwords
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+        // Find inputs that contain 'password' in their ID
+        const passwords = document.querySelectorAll('input[type="password"]');
+        if (passwords.length >= 2) {
+            if (passwords[0].value !== passwords[1].value) {
                 e.preventDefault();
-                alert('Passwords do not match.');
+                const existing = document.querySelector('.alert-danger');
+                if (existing) existing.remove();
+                const err = document.createElement('div');
+                err.className = 'alert-danger';
+                err.textContent = 'Passwords do not match.';
+                document.getElementById('signup-form').prepend(err);
             }
-        });
-    </script>
-{% endblock %}
+        }
+    });
+</script>
+
+</body>
+</html>

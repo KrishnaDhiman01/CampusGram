@@ -1,48 +1,215 @@
 {% extends 'accounts/base.html' %}
 
 {% block content %}
-<div style="text-align: center; margin-top: 50px;">
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+        padding-bottom: 80px; /* Bottom nav ke liye space */
+    }
     
-    <img src="{{ user_obj.profile.profile_img.url }}" 
-         style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #ddd;">
+    /* Header (Image Left, Info Right) */
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 40px;
+        gap: 60px;
+    }
+    .profile-pic {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #efefef;
+        padding: 3px; /* Insta jaisa ring effect */
+    }
+    .profile-info {
+        flex: 1;
+    }
     
-    <h1>@{{ user_obj.username }}</h1>
+    /* Username aur Edit Button ek line me */
+    .profile-top-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    .profile-username {
+        font-size: 22px;
+        font-weight: 400;
+        color: #262626;
+        margin: 0;
+    }
+    .btn-profile {
+        background-color: #efefef;
+        color: #262626;
+        padding: 6px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+    .btn-profile:hover { background-color: #dbdbdb; }
     
-    <p style="font-size: 1.2rem; color: #555;">
-        {{ user_obj.profile.bio|default:"No bio yet." }}
-    </p>
+    .btn-follow {
+        background-color: #0095f6;
+        color: white;
+        padding: 6px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .btn-unfollow {
+        background-color: #efefef;
+        color: #262626;
+        padding: 6px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+    }
 
-    {% if request.user == user_obj %}
-        <a href="{% url 'edit_profile' %}" style="background: #efefef; padding: 5px 10px; text-decoration: none; color: black; border-radius: 5px;">Edit Profile</a>
-    {% else %}
-        <a href="{% url 'follow_user' user_obj.username %}" style="background: {% if is_following %}#ccc{% else %}#0095f6{% endif %}; color: white; padding: 5px 20px; text-decoration: none; border-radius: 5px;">{% if is_following %}Unfollow{% else %}Follow{% endif %}</a>
-    {% endif %}
-
-    <hr style="margin-top: 30px;">
+    /* Stats (Posts, Followers) */
+    .profile-stats {
+        display: flex;
+        gap: 40px;
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: #262626;
+    }
     
-    <div style="display: flex; justify-content: center; gap: 30px;">
-        <div><strong>{{ posts|length }}</strong> Posts</div>
-        <div><strong>{{ followers_count }}</strong> Followers</div>
-        <div><strong>{{ following_count }}</strong> Following</div>
-    </div>
+    /* Bio */
+    .profile-bio {
+        font-size: 14px;
+        color: #262626;
+        line-height: 1.5;
+    }
 
-</div>
+    /* Posts Divider */
+    .profile-tabs {
+        border-top: 1px solid #dbdbdb;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .tab-item {
+        padding: 15px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #262626;
+        letter-spacing: 1px;
+        border-top: 1px solid #262626;
+        margin-top: -1px;
+        display: flex;
+        align-items: center;
+    }
 
-<div style="max-width: 600px; margin: 20px auto;">
-    <h3>Posts</h3>
-    {% for post in posts %}
-    <div style="border: 1px solid #ddd; margin-bottom: 20px; padding: 15px; border-radius: 10px;">
-        {% if post.image %}
-        <img src="{{ post.image.url }}" style="width: 100%; border-radius: 10px; margin-bottom: 10px;">
+    /* Posts Grid (3x3) */
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px; /* Photos ke beech me chota gap */
+    }
+    .post-square {
+        width: 100%;
+        aspect-ratio: 1 / 1; /* Photo ko perfectly square banata hai */
+        object-fit: cover;
+        background-color: #efefef;
+        transition: opacity 0.2s;
+    }
+    .post-square:hover {
+        opacity: 0.8;
+    }
+    .no-posts {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    /* Mobile screens ke liye adjustment */
+    @media (max-width: 600px) {
+        .profile-header {
+            gap: 20px;
+            flex-direction: column;
+            text-align: center;
+        }
+        .profile-top-row {
+            flex-direction: column;
+        }
+        .profile-stats {
+            justify-content: center;
+            gap: 20px;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    
+    <div class="profile-header">
+        {% if user_obj.profile.profile_img %}
+            <img src="{{ user_obj.profile.profile_img.url }}" class="profile-pic" alt="{{ user_obj.username }}">
+        {% else %}
+            <div style="width: 150px; height: 150px; border-radius: 50%; background-color: #efefef; border: 2px solid #dbdbdb;"></div>
         {% endif %}
-        <p>{{ post.caption }}</p>
-        <small style="color: grey;">{{ post.created_at|date:"M d, Y H:i" }}</small>
-        <div style="margin-top: 10px;">
-            <span style="color: red;">❤️ {{ post.like_set.count }}</span>
+        
+        <div class="profile-info">
+            <div class="profile-top-row">
+                <h1 class="profile-username">{{ user_obj.username }}</h1>
+                
+                {% if request.user == user_obj %}
+                    <a href="{% url 'edit_profile' %}" class="btn-profile">Edit Profile</a>
+                {% else %}
+                    <a href="{% url 'follow_user' user_obj.username %}" class="{% if is_following %}btn-unfollow{% else %}btn-follow{% endif %}">
+                        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="profile-stats">
+                <div><strong>{{ posts|length }}</strong> posts</div>
+                <div><strong>{{ followers_count }}</strong> followers</div>
+                <div><strong>{{ following_count }}</strong> following</div>
+            </div>
+
+            <div class="profile-bio">
+                <strong style="font-weight: 600;">CampusGram User</strong><br>
+                {{ user_obj.profile.bio|default:"Welcome to my CampusGram profile! 🎓"|linebreaksbr }}
+            </div>
         </div>
     </div>
-    {% empty %}
-    <p>No posts yet.</p>
-    {% endfor %}
+
+    <div class="profile-tabs">
+        <div class="tab-item">
+            <i data-lucide="grid" style="width: 14px; height: 14px; margin-right: 6px;"></i> POSTS
+        </div>
+    </div>
+
+    <div class="posts-grid">
+        {% for post in posts %}
+            {% if post.image %}
+                <a href="#">
+                    <img src="{{ post.image.url }}" class="post-square" alt="Post">
+                </a>
+            {% else %}
+                <div class="post-square" style="display:flex; align-items:center; justify-content:center; padding:10px; text-align:center; font-size:12px; border:1px solid #dbdbdb; color: #262626;">
+                    {{ post.caption|truncatechars:40 }}
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="no-posts">
+                <i data-lucide="camera" style="width: 40px; height: 40px; color: #262626; margin-bottom: 10px;"></i>
+                <h2 style="font-size: 22px; color: #262626; font-weight: 800; margin:0;">No Posts Yet</h2>
+            </div>
+        {% endfor %}
+    </div>
+
 </div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
 {% endblock %}

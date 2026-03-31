@@ -1,47 +1,113 @@
 {% extends 'accounts/base.html' %}
 
 {% block content %}
-<div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-        <h2>Feed</h2>
-        <a href="{% url 'create_post' %}" class="button">Create Post</a>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+    /* Feed ko center me lock karne ke liye */
+    .feed-wrapper {
+        max-width: 600px;
+        margin: 0 auto; /* Yeh left aur right se center karega */
+        padding-bottom: 80px;
+        padding-top: 15px;
+    }
+    
+    /* Bottom Navbar ko bhi 600px tak limit karke center me fix karenge */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%); /* Center alignment trick */
+        width: 100%;
+        max-width: 600px; /* Feed ke size ka barabar */
+        background-color: #ffffff;
+        border-top: 1px solid #dbdbdb;
+        border-left: 1px solid #dbdbdb;
+        border-right: 1px solid #dbdbdb;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        display: flex;
+        justify-content: space-around;
+        padding: 12px 0;
+        z-index: 1000;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+    .bottom-nav a {
+        color: #262626;
+        text-decoration: none;
+        transition: transform 0.2s ease;
+    }
+    .bottom-nav a:hover {
+        color: #8e8e8e;
+        transform: scale(1.1); /* Hover karne par icon thoda bada hoga */
+    }
+</style>
+
+<div class="feed-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px;">
+        <h2 style="font-weight: 800; font-family: 'Segoe UI', sans-serif; margin: 0;">CAMPUS GRAM</h2>
+        <a href="{% url 'create_post' %}" style="background-color: #0095f6; color: white; padding: 6px 16px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px;">+ Post</a>
     </div>
 
     {% for post in posts %}
-    <div class="card">
-        <div class="card-header">
-            <img src="{{ post.user.profile.profile_img.url }}" alt="{{ post.user.username }}">
-            <div>
-                <a href="{% url 'profile' post.user.username %}" style="text-decoration: none; color: #111; font-weight: 700;">{{ post.user.username }}</a>
-                <div class="small-text">{{ post.created_at|date:"M d, Y H:i" }}</div>
+    <div class="card shadow-sm" style="margin-bottom: 25px; border-radius: 8px; border: 1px solid #dbdbdb;">
+        
+        <div class="card-header bg-white" style="border-bottom: none; display: flex; align-items: center; padding: 12px 15px;">
+            {% if post.user.profile.profile_img %}
+                <img src="{{ post.user.profile.profile_img.url }}" alt="{{ post.user.username }}" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #dbdbdb; margin-right: 10px;">
+            {% endif %}
+            <div style="line-height: 1.2;">
+                <a href="{% url 'profile' post.user.username %}" style="text-decoration: none; color: #262626; font-weight: 600; font-size: 14px;">{{ post.user.username }}</a>
+                <div style="font-size: 11px; color: #8e8e8e;">{{ post.created_at|date:"M d, Y" }}</div>
             </div>
         </div>
 
         {% if post.image %}
-        <img src="{{ post.image.url }}" style="width: 100%; border-radius: 12px; margin-bottom: 12px;">
+        <img src="{{ post.image.url }}" style="width: 100%; max-height: 600px; object-fit: cover;">
         {% endif %}
 
-        {% if post.caption %}
-        <p style="margin: 0 0 12px 0;">{{ post.caption }}</p>
-        {% endif %}
+        <div style="padding: 15px;">
+            <div style="margin-bottom: 8px;">
+                <a href="{% url 'like_post' post.id %}" style="text-decoration: none; font-size: 20px; color: {% if post.id in liked_post_ids %}red{% else %}#262626{% endif %};">
+                    {% if post.id in liked_post_ids %}❤️{% else %}🤍{% endif %}
+                </a>
+                <span style="font-weight: 600; font-size: 14px; margin-left: 8px;">{{ post.like_set.count }} likes</span>
+            </div>
 
-        <div class="card-footer">
-            <a href="{% url 'like_post' post.id %}" class="button-secondary" style="color: {% if post.id in liked_post_ids %}red{% else %}inherit{% endif %};">
-                ❤️ {{ post.like_set.count }}
-            </a>
-            <span class="small-text">{{ post.comment_set.count }} comments</span>
-        </div>
+            {% if post.caption %}
+            <p style="margin: 0 0 8px 0; font-size: 14px;">
+                <strong style="font-weight: 600;">{{ post.user.username }}</strong> {{ post.caption }}
+            </p>
+            {% endif %}
 
-        <div style="margin-top: 12px;">
-            <form method="POST" action="{% url 'add_comment' post.id %}">
+            <div style="font-size: 13px; color: #8e8e8e; margin-bottom: 12px;">
+                View all {{ post.comment_set.count }} comments
+            </div>
+
+            <form method="POST" action="{% url 'add_comment' post.id %}" style="display: flex; border-top: 1px solid #efefef; padding-top: 10px;">
                 {% csrf_token %}
-                <input type="text" name="text" placeholder="Add a comment..." required>
-                <button type="submit">Comment</button>
+                <input type="text" name="text" placeholder="Add a comment..." required style="flex-grow: 1; border: none; outline: none; font-size: 14px; background: transparent;">
+                <button type="submit" style="background: none; border: none; color: #0095f6; font-weight: 600; font-size: 14px; cursor: pointer;">Post</button>
             </form>
         </div>
     </div>
     {% empty %}
-    <p style="text-align: center;">No posts yet. <a href="{% url 'create_post' %}">Create your first post!</a></p>
+    <div style="text-align: center; margin-top: 50px;">
+        <h4 style="color: #262626;">Welcome to CampusGram</h4>
+        <p style="color: #8e8e8e;">No posts yet. <a href="{% url 'create_post' %}" style="color: #0095f6; text-decoration: none; font-weight: 600;">Create your first post!</a></p>
+    </div>
     {% endfor %}
 </div>
+
+<div class="bottom-nav shadow-sm">
+    <a href="{% url 'feed' %}"><i data-lucide="home"></i></a>
+    <a href="#"><i data-lucide="search"></i></a>
+    <a href="{% url 'create_post' %}"><i data-lucide="plus-square"></i></a>
+    <a href="#"><i data-lucide="heart"></i></a>
+    <a href="{% url 'profile' user.username %}"><i data-lucide="user"></i></a>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
 {% endblock %}

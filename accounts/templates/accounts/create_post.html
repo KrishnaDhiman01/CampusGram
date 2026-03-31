@@ -1,24 +1,33 @@
 {% extends 'accounts/base.html' %}
 
 {% block content %}
-<div class="container">
-    <div style="max-width: 600px; margin: 0 auto;">
-        <div class="card">
-            <h2>Create Post</h2>
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <label style="font-weight: 600;">Image</label>
-                <input type="file" name="image" accept="image/*">
-                
-                <label style="font-weight: 600;">Caption</label>
-                <textarea name="caption" rows="4" placeholder="Write a caption..."></textarea>
-
-                <button type="submit">Post</button>
-            </form>
-            <div style="margin-top: 14px;">
-                <a href="{% url 'feed' %}" class="button-secondary">Back to Feed</a>
-            </div>
-        </div>
+<div style="max-width: 450px; margin: 50px auto; background-color: #fff; border: 1px solid #dbdbdb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 0;">
+    
+    <div style="border-bottom: 1px solid #dbdbdb; padding: 16px; text-align: center;">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 600; color: #262626; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">Create New Post</h2>
     </div>
+
+    <div style="padding: 24px;">
+        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 20px; margin: 0;">
+            {% csrf_token %}
+            
+            <div>
+                <label style="font-weight: 600; font-size: 14px; color: #262626; margin-bottom: 8px; display: block;">Select Image</label>
+                <input type="file" name="image" accept="image/*" style="width: 100%; padding: 12px; border: 2px dashed #dbdbdb; border-radius: 6px; background-color: #fafafa; cursor: pointer; box-sizing: border-box; font-size: 14px;" required>
+            </div>
+
+            <div>
+                <label style="font-weight: 600; font-size: 14px; color: #262626; margin-bottom: 8px; display: block;">Caption</label>
+                <textarea name="caption" rows="4" placeholder="Write a caption..." style="width: 100%; padding: 12px; border: 1px solid #dbdbdb; border-radius: 6px; background-color: #fafafa; resize: none; font-family: inherit; font-size: 14px; box-sizing: border-box; outline: none;"></textarea>
+            </div>
+
+            <button type="submit" style="background-color: #0095f6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 5px; width: 100%; transition: background-color 0.2s;">Share</button>
+        </form>
+    </div>
+
+    <div style="border-top: 1px solid #dbdbdb; padding: 16px; text-align: center; background-color: #fafafa; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+        <a href="{% url 'feed' %}" style="color: #ed4956; text-decoration: none; font-size: 14px; font-weight: 600;">Cancel and return to Feed</a>
+    </div>
+
 </div>
 {% endblock %}

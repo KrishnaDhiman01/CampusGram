@@ -1,22 +1,113 @@
-{% extends 'accounts/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CampusGram</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Standalone Base CSS */
+        body { margin: 0; padding: 0; background: #0a0a11; font-family: 'DM Sans', sans-serif; color: #fff; }
+        .main { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+        
+        /* Left Panel */
+        .left-panel { display: flex; align-items: center; justify-content: center; padding: 60px 48px; border-right: 0.5px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+        .left-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 40%, rgba(108,99,255,0.12) 0%, transparent 65%), radial-gradient(ellipse at 70% 70%, rgba(180,99,255,0.06) 0%, transparent 60%); }
+        .left-content { position: relative; z-index: 1; max-width: 380px; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(108,99,255,0.15); border: 0.5px solid rgba(108,99,255,0.35); border-radius: 20px; font-size: 12px; color: #a09cff; letter-spacing: 0.5px; margin-bottom: 28px; }
+        .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: #6c63ff; flex-shrink: 0; }
+        .hero-title { font-family: 'DM Serif Display', serif; font-size: 3.2rem; line-height: 1.1; letter-spacing: -1px; margin-top: 0; margin-bottom: 18px; }
+        .hero-title em { font-style: italic; color: #9d96ff; }
+        .hero-sub { font-size: 15px; color: rgba(255,255,255,0.4); line-height: 1.6; font-weight: 300; margin: 0; }
 
-{% block content %}
-    <h2>Log In</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {% for field in form %}
-            <p>
-                {{ field.label_tag }}<br>
-                {{ field }}
-                {% if field.errors %}
-                    <small style="color: red">{{ field.errors }}</small>
+        /* Right Panel */
+        .right-panel { display: flex; align-items: center; justify-content: center; padding: 60px 48px; background: #0a0a11; }
+        .login-box { width: 100%; max-width: 360px; }
+        .login-heading { font-family: 'DM Serif Display', serif; font-size: 1.9rem; letter-spacing: -0.5px; margin-top: 0; margin-bottom: 6px; }
+        .login-sub { font-size: 14px; color: rgba(255,255,255,0.35); font-weight: 300; margin-bottom: 36px; margin-top: 0;}
+
+        /* Form Reset & Styling */
+        form { display: block; margin: 0; padding: 0; border: none; background: transparent; width: 100%; text-align: left; border-radius: 0;}
+        .field { margin-bottom: 20px; }
+        .field label { display: block; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.45); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 8px; }
+        
+        /* Inputs */
+        .field input { display: block; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 16px; font-size: 14px; color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 300; outline: none; transition: border-color 0.2s; margin-bottom: 0;}
+        .field input:focus { border-color: rgba(108,99,255,0.5); background: rgba(108,99,255,0.05); }
+
+        .forgot { display: block; text-align: right; font-size: 12px; color: rgba(108,99,255,0.8); text-decoration: none; margin-top: 10px; margin-bottom: 28px; transition: color 0.2s;}
+        .forgot:hover { color: #9d96ff; }
+        
+        .btn-login { background: #6c63ff; color: #fff; padding: 14px; border: none; border-radius: 10px; width: 100%; font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s;}
+        .btn-login:hover { background: #5a52e0; }
+
+        .divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+        .divider-line { flex: 1; height: 0.5px; background: rgba(255,255,255,0.08); }
+        .divider-text { font-size: 12px; color: rgba(255,255,255,0.2); white-space: nowrap; }
+        
+        .signup-row { text-align: center; font-size: 13px; color: rgba(255,255,255,0.3); font-weight: 300; margin: 0; }
+        .signup-row a { color: #9d96ff; text-decoration: none; font-weight: 500; transition: color 0.2s;}
+        .signup-row a:hover { color: #bcb8ff; }
+        
+        .alert-danger { background: rgba(220,53,69,0.15); border: 0.5px solid rgba(220,53,69,0.35); color: #ff8a8a; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 20px; text-align: center;}
+        .field-error { font-size: 12px; color: #ff8a8a; margin-top: 6px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="main">
+    <div class="left-panel">
+        <div class="left-bg"></div>
+        <div class="left-content">
+            <div class="eyebrow">
+                <div class="eyebrow-dot"></div>
+                Your campus, connected
+            </div>
+            <h1 class="hero-title">Where campus <em>life</em> lives.</h1>
+            <p class="hero-sub">Share moments, follow clubs, stay in the loop — all in one place built for your university.</p>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="login-box">
+            <h2 class="login-heading">Welcome back</h2>
+            <p class="login-sub">Log in to your CampusGram account</p>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert-danger">{{ form.non_field_errors }}</div>
                 {% endif %}
+                
+                {% for field in form %}
+                    <div class="field">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="field-error">{{ field.errors|striptags }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <a href="#" class="forgot">Forgot password?</a>
+                <button type="submit" class="btn-login">Log In</button>
+            </form>
+
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">don't have an account?</span>
+                <div class="divider-line"></div>
+            </div>
+            
+            <p class="signup-row">
+                <a href="{% url 'signup' %}">Create one here &rarr;</a>
             </p>
-        {% endfor %}
-        {% if form.non_field_errors %}
-            <p style="color: red">{{ form.non_field_errors }}</p>
-        {% endif %}
-        <button type="submit">Log In</button>
-    </form>
-    <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
-{% endblock %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
