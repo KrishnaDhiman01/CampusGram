@@ -34,6 +34,8 @@ def feed_view(request):
 
     following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
     posts = Post.objects.filter(Q(user__in=following_users) | Q(user=request.user)).order_by('-created_at')
+    posts = posts.prefetch_related('comment_set', 'user__profile', 'like_set')
+
 
     liked_post_ids = set(
         Like.objects.filter(user=request.user, post__in=posts).values_list('post_id', flat=True)

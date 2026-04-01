@@ -80,8 +80,17 @@
             </p>
             {% endif %}
 
-            <div style="font-size: 13px; color: #8e8e8e; margin-bottom: 12px;">
-                View all {{ post.comment_set.count }} comments
+            <div style="font-size: 13px; color: #8e8e8e; margin-bottom: 8px;">
+                {% if post.comment_set.count > 0 %}
+                    {% for comment in post.comment_set.all|slice:":2" %}
+                    <p style="margin: 0 0 4px 0; font-size: 14px;"><strong>{{ comment.user.username }}</strong> {{ comment.text }}</p>
+                    {% endfor %}
+                    {% if post.comment_set.count > 2 %}
+                    <p style="margin: 0; color: #8e8e8e;">View all {{ post.comment_set.count }} comments</p>
+                    {% endif %}
+                {% else %}
+                    <p style="margin: 0;">No comments yet. Be first!</p>
+                {% endif %}
             </div>
 
             <form method="POST" action="{% url 'add_comment' post.id %}" style="display: flex; border-top: 1px solid #efefef; padding-top: 10px;">
