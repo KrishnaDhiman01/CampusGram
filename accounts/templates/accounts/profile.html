@@ -168,35 +168,51 @@
                 {% endif %}
             </div>
 
-            <div class="profile-stats">
-                <div><strong>{{ posts|length }}</strong> posts</div>
-                <div><strong>{{ followers_count }}</strong> followers</div>
-                <div><strong>{{ following_count }}</strong> following</div>
+            <!-- Follower / Following Stats -->
+            <div class="profile-stats" style="margin-top: 15px; margin-bottom: 20px;">
+                <div><strong>{{ posts.count }}</strong> campus posts</div>
+                <div><strong>{{ followers_count }}</strong> connections</div>
+                <div><strong>{{ following_count }}</strong> connected students</div>
             </div>
 
             <div class="profile-bio">
-                <strong style="font-weight: 600;">CampusGram User</strong><br>
+                <strong style="font-weight: 600;">CampusGram User</strong>
+                {% if user_obj.profile.department or user_obj.profile.year %}
+                <div style="font-size: 13px; color: #555; margin-top: 4px; margin-bottom: 8px;">
+                    🎓 {{ user_obj.profile.department|default:"" }} 
+                    {% if user_obj.profile.department and user_obj.profile.year %}|{% endif %}
+                    {{ user_obj.profile.year|default:"" }}
+                </div>
+                {% else %}<br>{% endif %}
                 {{ user_obj.profile.bio|default:"Welcome to my CampusGram profile! 🎓"|linebreaksbr }}
             </div>
         </div>
     </div>
 
+    <!-- About CampusGram Section -->
+    <div style="background-color: #fff; padding: 20px; text-align: center; border-radius: 8px; border: 1px solid #cce0ff; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,51,102,0.05);">
+        <h4 style="margin: 0 0 8px 0; color: #003366; font-size: 15px;">About CampusGram</h4>
+        <p style="margin: 0; font-size: 13px; color: #555; line-height: 1.5;">CampusGram helps students connect, share campus moments, academic activities, and important updates within the college community.</p>
+    </div>
+
     <div class="profile-tabs">
         <div class="tab-item">
-            <i data-lucide="grid" style="width: 14px; height: 14px; margin-right: 6px;"></i> POSTS
+            <i data-lucide="grid" style="width: 14px; height: 14px; margin-right: 6px;"></i> CAMPUS POSTS
         </div>
     </div>
 
     <div class="posts-grid">
         {% for post in posts %}
             {% if post.image %}
-                <a href="#">
+                <a href="{% url 'post_detail' post.id %}">
                     <img src="{{ post.image.url }}" class="post-square" alt="Post">
                 </a>
             {% else %}
-                <div class="post-square" style="display:flex; align-items:center; justify-content:center; padding:10px; text-align:center; font-size:12px; border:1px solid #dbdbdb; color: #262626;">
-                    {{ post.caption|truncatechars:40 }}
-                </div>
+                <a href="{% url 'post_detail' post.id %}" style="text-decoration: none;">
+                    <div class="post-square" style="display:flex; align-items:center; justify-content:center; padding:10px; text-align:center; font-size:12px; border:1px solid #dbdbdb; color: #262626;">
+                        {{ post.caption|truncatechars:40 }}
+                    </div>
+                </a>
             {% endif %}
         {% empty %}
             <div class="no-posts">

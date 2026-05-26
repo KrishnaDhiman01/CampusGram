@@ -9,14 +9,26 @@ class Profile(models.Model):
     bio = models.TextField(blank=True)
     # Ensure you have 'pillow' installed for ImageField to work
     profile_img = models.ImageField(upload_to='profile_images', default='blank-profile.png', blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True)
+    year = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
         return self.user.username
 
 class Post(models.Model):
+    CATEGORY_CHOICES = [
+        ('Event', 'Event'),
+        ('Achievement', 'Achievement'),
+        ('Club Activity', 'Club Activity'),
+        ('Announcement', 'Announcement'),
+        ('Study Material', 'Study Material'),
+        ('Lost & Found', 'Lost & Found'),
+        ('Fun Moment', 'Fun Moment'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='post_images', blank=True, null=True)
     caption = models.TextField(blank=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='Fun Moment')
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

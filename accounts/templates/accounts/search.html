@@ -1,0 +1,87 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<style>
+    .search-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding-bottom: 80px;
+    }
+    .search-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        font-size: 16px;
+        outline: none;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+    .search-input:focus {
+        border-color: #8e8e8e;
+    }
+    .user-card {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        text-decoration: none;
+        color: #262626;
+        transition: background 0.2s;
+    }
+    .user-card:hover {
+        background: #f9f9f9;
+    }
+    .user-pic {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+        border: 1px solid #dbdbdb;
+    }
+</style>
+
+<div class="search-container">
+    <h2 style="font-family: 'Segoe UI', sans-serif; font-weight: 800; margin-bottom: 15px; color: #003366;">Search Students</h2>
+    
+    <form method="GET" action="{% url 'search_users' %}" style="padding: 0; border: none; background: transparent; width: 100%;">
+        <input type="text" name="q" class="search-input" placeholder="Search students..." value="{{ query }}">
+        <button type="submit" style="display: none;">Search</button>
+    </form>
+
+    <div>
+        {% if query %}
+            <h4 style="margin-bottom: 10px; color: #8e8e8e; font-size: 14px;">Search Results for "{{ query }}"</h4>
+            {% for user_obj in users %}
+                <a href="{% url 'profile' user_obj.username %}" class="user-card">
+                    {% if user_obj.profile.profile_img %}
+                        <img src="{{ user_obj.profile.profile_img.url }}" class="user-pic" alt="Profile">
+                    {% else %}
+                        <div class="user-pic" style="background-color: #efefef;"></div>
+                    {% endif %}
+                    <div>
+                        <div style="font-weight: 600; font-size: 14px;">{{ user_obj.username }}</div>
+                    </div>
+                </a>
+            {% empty %}
+                <div style="text-align: center; color: #8e8e8e; margin-top: 30px;">
+                    No students found matching "{{ query }}"
+                </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; color: #8e8e8e; margin-top: 30px;">
+                Type a username to find connected students.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

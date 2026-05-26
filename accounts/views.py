@@ -1,17 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from django.contrib.auth import login
-from django.shortcuts import get_object_or_404
+from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from django.shortcuts import redirect
-from .forms import SignUpForm
 from django.http import Http404
 from django.contrib.auth.views import LoginView, LogoutView
-from .models import Post, Follow, Like, Comment, Profile
 from django.db.models import Q
+from .forms import SignUpForm
+from .models import Post, Follow, Like, Comment, Profile
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -71,6 +68,8 @@ def edit_profile_view(request):
         # Get data from the form
         user = request.user
         user.profile.bio = request.POST.get('bio')
+        user.profile.department = request.POST.get('department', '')
+        user.profile.year = request.POST.get('year', '')
         
         # Check if an image was uploaded
         if 'profile_img' in request.FILES:
@@ -101,7 +100,7 @@ def like_post_view(request, post_id):
     like, created = Like.objects.get_or_create(user=request.user, post=post)
     if not created:
         like.delete()
-    return redirect('feed')
+    return redirect(request.META.get('HTTP_REFERER', 'feed'))
 
 @login_required
 def follow_user_view(request, username):
@@ -117,8 +116,9 @@ def create_post_view(request):
     if request.method == 'POST':
         image = request.FILES.get('image')
         caption = request.POST.get('caption')
+        category = request.POST.get('category', 'Fun Moment')
         if image or caption:
-            Post.objects.create(user=request.user, image=image, caption=caption)
+            Post.objects.create(user=request.user, image=image, caption=caption, category=category)
             return redirect('feed')
         # If user submitted without content, just fall through to re-render form
     return render(request, 'accounts/create_post.html')
@@ -130,8 +130,31 @@ def add_comment_view(request, post_id):
         text = request.POST.get('text')
         if text:
             Comment.objects.create(user=request.user, post=post, text=text)
-    return redirect('feed')
+    return redirect(request.META.get('HTTP_REFERER', 'feed'))
 
 def logout_view(request):
     logout(request)
     return render(request, 'accounts/logout.html')
+
+@login_required
+def search_users_view(request):
+    query = request.GET.get('q', '')
+    users = []
+    if query:
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
+    return render(request, 'accounts/search.html', {'users': users, 'query': query})
+
+@login_required
+def delete_post_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if post.user == request.user:
+        post.delete()
+    return redirect('profile', username=request.user.username)
+
+@login_required
+def post_detail_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    liked_post_ids = set()
+    if Like.objects.filter(user=request.user, post=post).exists():
+        liked_post_ids.add(post.id)
+    return render(request, 'accounts/post_detail.html', {'post': post, 'liked_post_ids': liked_post_ids})
