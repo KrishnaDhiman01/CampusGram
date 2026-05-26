@@ -253,6 +253,14 @@
         .login-row a:hover {
             color: #bcb8ff;
         }
+
+        @media (max-width: 768px) {
+            .main { grid-template-columns: 1fr; }
+            .left-panel { padding: 40px 24px; text-align: center; border-right: none; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+            .right-panel { padding: 40px 24px; align-items: flex-start; }
+            .hero-title { font-size: 2.5rem; }
+            .left-content { margin: 0 auto; }
+        }
     </style>
 </head>
 

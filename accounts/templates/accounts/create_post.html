@@ -1,66 +1,107 @@
 {% extends 'accounts/base.html' %}
 
+{% block extra_style %}
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 30px auto;
+    }
+    
+    .form-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--primary);
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+    }
+    
+    .form-subtitle {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+    }
+
+    .dashed-upload {
+        display: block;
+        width: 100%;
+        padding: 24px 16px;
+        border: 2px dashed var(--border);
+        background: #f8fafc;
+        border-radius: var(--radius-md);
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .dashed-upload:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div
-    style="max-width: 450px; margin: 50px auto; background-color: #fff; border: 1px solid #cce0ff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,51,102,0.1); padding: 0;">
+<div class="form-container">
+    <div class="card">
+        <h2 class="form-title">Create Campus Post</h2>
+        <p class="form-subtitle">Share academic files, events, club news, or lost & found notices with college mates.</p>
 
-    <div
-        style="border-bottom: 1px solid #cce0ff; padding: 16px; text-align: center; background-color: #003366; border-top-left-radius: 8px; border-top-right-radius: 8px;">
-        <h2
-            style="margin: 0; font-size: 18px; font-weight: 600; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            Create Campus Post</h2>
-    </div>
-
-    <div style="padding: 24px;">
-        <form method="POST" enctype="multipart/form-data"
-            style="display: flex; flex-direction: column; gap: 20px; margin: 0;">
+        <form method="POST" enctype="multipart/form-data" class="form-styled">
             {% csrf_token %}
 
-            <div>
-                <label
-                    style="font-weight: 600; font-size: 14px; color: #262626; margin-bottom: 8px; display: block;">Select
-                    Image</label>
-                <input type="file" name="image" accept="image/*"
-                    style="width: 100%; padding: 12px; border: 2px dashed #dbdbdb; border-radius: 6px; background-color: #fafafa; cursor: pointer; box-sizing: border-box; font-size: 14px;"
-                    required>
+            <div class="form-group">
+                <label>Upload Campus Media</label>
+                <div class="dashed-upload" onclick="document.getElementById('image-input').click()">
+                    <i data-lucide="image" style="width: 32px; height: 32px; color: var(--text-muted); margin-bottom: 8px;"></i>
+                    <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Click to select file</p>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Supports JPG, PNG, GIF</p>
+                    <input type="file" id="image-input" name="image" accept="image/*" style="display: none;" required onchange="updateUploadText(this)">
+                </div>
+                <div id="file-name" style="font-size: 0.8rem; font-weight: 600; color: #16a34a; margin-top: 6px; display: none;"></div>
             </div>
 
-            <div>
-                <label
-                    style="font-weight: 600; font-size: 14px; color: #003366; margin-bottom: 8px; display: block;">Select
-                    Category</label>
-                <select name="category"
-                    style="width: 100%; padding: 12px; border: 1px solid #cce0ff; border-radius: 6px; background-color: #fafafa; font-size: 14px; outline: none; box-sizing: border-box;">
-                    <option value="Event">Event</option>
-                    <option value="Achievement">Achievement</option>
-                    <option value="Club Activity">Club Activity</option>
-                    <option value="Announcement">Announcement</option>
-                    <option value="Study Material">Study Material</option>
-                    <option value="Lost & Found">Lost & Found</option>
-                    <option value="Fun Moment" selected>Fun Moment</option>
+            <div class="form-group">
+                <label>Select Category</label>
+                <select name="category" class="input-styled">
+                    <option value="Event">Event 🎓</option>
+                    <option value="Announcement">Announcement 📢</option>
+                    <option value="Study Material">Study Material 📚</option>
+                    <option value="Lost & Found">Lost & Found 🚨</option>
+                    <option value="Club Activity">Club Activity 🤝</option>
+                    <option value="Achievement">Achievement 🏆</option>
+                    <option value="Fun Moment" selected>Fun Moment ✨</option>
                 </select>
             </div>
 
-            <div>
-                <label
-                    style="font-weight: 600; font-size: 14px; color: #003366; margin-bottom: 8px; display: block;">Caption</label>
-                <textarea name="caption" rows="4"
-                    placeholder="Share campus updates, study resources, or lost & found notices..."
-                    style="width: 100%; padding: 12px; border: 1px solid #cce0ff; border-radius: 6px; background-color: #fafafa; resize: none; font-family: inherit; font-size: 14px; box-sizing: border-box; outline: none;"></textarea>
+            <div class="form-group">
+                <label>Caption / Details</label>
+                <textarea name="caption" rows="4" class="input-styled" placeholder="Share resources, mention room numbers, dates, or lost & found locations..." style="resize: none;"></textarea>
             </div>
 
-            <button type="submit"
-                style="background-color: #003366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 5px; width: 100%; transition: background-color 0.2s;">Share
-                Campus Post</button>
+            <button type="submit" class="btn-primary">
+                <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i>
+                <span>Publish Post</span>
+            </button>
         </form>
-    </div>
 
-    <div
-        style="border-top: 1px solid #cce0ff; padding: 16px; text-align: center; background-color: #fafafa; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-        <a href="{% url 'feed' %}"
-            style="color: #00509e; text-decoration: none; font-size: 14px; font-weight: 600;">Cancel and return to
-            Campus Feed</a>
+        <div style="margin-top: 18px; text-align: center; border-top: 1px solid var(--border); padding-top: 14px;">
+            <a href="{% url 'feed' %}" style="text-decoration: none; color: var(--text-muted); font-size: 0.88rem; font-weight: 600; transition: var(--transition);">
+                Cancel and return to Feed
+            </a>
+        </div>
     </div>
-
 </div>
+
+<script>
+    function updateUploadText(input) {
+        const file = input.files[0];
+        const display = document.getElementById('file-name');
+        if (file) {
+            display.innerText = "✓ Selected: " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
+            display.style.display = 'block';
+        } else {
+            display.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

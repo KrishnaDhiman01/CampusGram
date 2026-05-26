@@ -1,117 +1,359 @@
 {% extends 'accounts/base.html' %}
 
-{% block content %}
+{% block extra_style %}
 <style>
     .post-detail-container {
         max-width: 600px;
         margin: 20px auto;
-        padding-bottom: 80px;
+        padding-bottom: 40px;
     }
 
-    .btn-delete {
-        background-color: #ed4956;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 6px;
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-muted);
         text-decoration: none;
+        font-size: 0.9rem;
         font-weight: 600;
-        font-size: 12px;
-        transition: opacity 0.2s;
+        margin-bottom: 16px;
+        transition: var(--transition);
+    }
+    .back-btn:hover {
+        color: var(--primary);
+        transform: translateX(-2px);
     }
 
-    .btn-delete:hover {
-        opacity: 0.8;
+    /* Detail Card */
+    .detail-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .detail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .detail-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .detail-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary-light);
+    }
+
+    .detail-meta {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+    .detail-username {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .detail-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 2px;
+    }
+
+    .detail-category-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .badge-lost-found {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fee2e2;
+    }
+
+    .badge-study-material {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+    }
+
+    .badge-event {
+        background: #eff6ff;
+        color: #2563eb;
+        border: 1px solid #dbeafe;
+    }
+
+    .badge-default {
+        background: #f8fafc;
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+    }
+
+    .detail-image-wrapper {
+        width: 100%;
+        background: #f1f5f9;
+        max-height: 600px;
+        overflow: hidden;
+    }
+
+    .detail-image {
+        width: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    .detail-actions {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .action-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+    .like-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition: var(--transition);
+    }
+
+    .like-btn i {
+        stroke-width: 2.2;
+        width: 20px;
+        height: 20px;
+    }
+
+    .like-btn-liked {
+        color: #ef4444;
+    }
+    .like-btn-unliked {
+        color: var(--text-main);
+    }
+    .like-btn-unliked:hover {
+        color: #ef4444;
+    }
+
+    /* Comment List Section */
+    .comments-section {
+        border-top: 1px solid #f1f5f9;
+        padding-top: 16px;
+        margin-top: 8px;
+    }
+
+    .comments-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .comment-item {
+        font-size: 0.88rem;
+        line-height: 1.45;
+        background: #f8fafc;
+        padding: 10px 12px;
+        border-radius: var(--radius-md);
+        border: 1px solid #f1f5f9;
+    }
+
+    .comment-author {
+        font-weight: 700;
+        color: var(--primary);
+        text-decoration: none;
+        margin-right: 4px;
+    }
+
+    .comment-time {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        display: block;
+        margin-top: 4px;
+    }
+
+    .detail-comment-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 14px;
+        margin-top: 8px;
+        background: transparent;
+        border-radius: 0;
+        border: none;
+        padding: 14px 0 0 0;
+        width: 100%;
+    }
+
+    .detail-comment-input {
+        flex-grow: 1;
+        border: none;
+        background: #f8fafc;
+        padding: 10px 14px;
+        border-radius: var(--radius-md);
+        font-size: 0.88rem;
+        outline: none;
+        transition: var(--transition);
+        border: 1px solid var(--border);
+    }
+
+    .detail-comment-input:focus {
+        background: #ffffff;
+        border-color: var(--primary);
     }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="post-detail-container">
-    <div style="margin-bottom: 15px;">
-        <a href="{% url 'profile' post.user.username %}"
-            style="color: #262626; text-decoration: none; font-weight: 600; font-size: 14px;">
-            ← Back to Profile
-        </a>
-    </div>
+    
+    <!-- Back Navigation Link -->
+    <a href="{% url 'profile' post.user.username %}" class="back-btn">
+        <i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i>
+        <span>Back to {{ post.user.username }}'s Profile</span>
+    </a>
 
-    <div class="card shadow-sm" style="border-radius: 8px; border: 1px solid #dbdbdb;">
-        <div class="card-header bg-white"
-            style="border-bottom: none; display: flex; align-items: center; justify-content: space-between; padding: 12px 15px;">
-            <div style="display: flex; align-items: center;">
+    <!-- Primary Post Detail Card -->
+    <div class="detail-card">
+        
+        <!-- Header -->
+        <div class="detail-header">
+            <div class="detail-user">
                 {% if post.user.profile.profile_img %}
-                <img src="{{ post.user.profile.profile_img.url }}" alt="{{ post.user.username }}"
-                    style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #dbdbdb; margin-right: 10px;">
+                    <img src="{{ post.user.profile.profile_img.url }}" class="detail-avatar" alt="Avatar">
+                {% else %}
+                    <div class="detail-avatar" style="background-color: var(--primary-light); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); font-size: 14px;">
+                        {{ post.user.username|slice:":2"|upper }}
+                    </div>
                 {% endif %}
-                <div style="line-height: 1.2;">
-                    <a href="{% url 'profile' post.user.username %}"
-                        style="text-decoration: none; color: #003366; font-weight: 600; font-size: 14px;">{{
-                        post.user.username }}</a>
-                    <div style="font-size: 11px; color: #8e8e8e;">
-                        Posted {{ post.created_at|timesince }} ago
-                        <span
-                            style="display: inline-block; background: #e0ecff; color: #00509e; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;">{{
-                            post.category }}</span>
+                <div class="detail-meta">
+                    <a href="{% url 'profile' post.user.username %}" class="detail-username">{{ post.user.username }}</a>
+                    <div class="detail-time">
+                        <span>{{ post.created_at|timesince }} ago</span>
+                        <span class="detail-category-badge 
+                                    {% if post.category == 'Lost & Found' %}badge-lost-found
+                                    {% elif post.category == 'Study Material' %}badge-study-material
+                                    {% elif post.category == 'Event' %}badge-event
+                                    {% else %}badge-default{% endif %}">
+                            {% if post.category == 'Lost & Found' %}🚨 
+                            {% elif post.category == 'Study Material' %}📚 
+                            {% elif post.category == 'Event' %}🎓 
+                            {% endif %}
+                            {{ post.category }}
+                        </span>
                     </div>
                 </div>
             </div>
 
             {% if request.user == post.user %}
-            <div>
-                <a href="{% url 'delete_post' post.id %}" class="btn-delete"
-                    onclick="return confirm('Are you sure you want to delete this post? This cannot be undone.');">Delete</a>
-            </div>
+            <a href="{% url 'delete_post' post.id %}" 
+               style="color: #ef4444; font-size: 0.8rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 3px;"
+               onclick="return confirm('Are you sure you want to delete this campus post? This cannot be undone.');">
+                <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Delete
+            </a>
             {% endif %}
         </div>
 
+        <!-- Post Image -->
         {% if post.image %}
-        <img src="{{ post.image.url }}" style="width: 100%; max-height: 600px; object-fit: cover;">
+        <div class="detail-image-wrapper">
+            <img src="{{ post.image.url }}" class="detail-image" alt="Post detail view">
+        </div>
         {% endif %}
 
-        <div style="padding: 15px;">
-            <div style="margin-bottom: 8px;">
-                <a href="{% url 'like_post' post.id %}"
-                    style="text-decoration: none; font-size: 20px; color: {% if post.id in liked_post_ids %}red{% else %}#262626{% endif %};">
-                    {% if post.id in liked_post_ids %}❤️{% else %}🤍{% endif %}
+        <!-- Content Area -->
+        <div class="detail-actions">
+            
+            <div class="action-row">
+                <a href="{% url 'like_post' post.id %}" 
+                   class="like-btn {% if post.id in liked_post_ids %}like-btn-liked{% else %}like-btn-unliked{% endif %}">
+                    <i data-lucide="heart" {% if post.id in liked_post_ids %}fill="#ef4444"{% endif %}></i>
+                    <span>{{ post.like_set.count }} likes</span>
                 </a>
-                <span style="font-weight: 600; font-size: 14px; margin-left: 8px;">{{ post.like_set.count }}
-                    likes</span>
             </div>
 
             {% if post.caption %}
-            <p style="margin: 0 0 12px 0; font-size: 14px;">
-                <strong style="font-weight: 600;">{{ post.user.username }}</strong> {{ post.caption }}
-            </p>
+            <div style="font-size: 0.95rem; line-height: 1.6; margin-top: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+                <strong style="color: var(--primary);">{{ post.user.username }}</strong> {{ post.caption }}
+            </div>
             {% endif %}
 
-            <div
-                style="font-size: 14px; font-weight: 600; color: #262626; margin-bottom: 10px; border-top: 1px solid #efefef; padding-top: 10px;">
-                Comments ({{ post.comment_set.count }})
-            </div>
+            <!-- Comments List Section -->
+            <div class="comments-section">
+                <h3 class="comments-title">
+                    <i data-lucide="message-circle" style="width: 18px; height: 18px;"></i>
+                    <span>Comments ({{ post.comment_set.count }})</span>
+                </h3>
 
-            <div style="margin-bottom: 15px;">
-                {% for comment in post.comment_set.all %}
-                <div style="margin-bottom: 8px; font-size: 14px;">
-                    <strong style="font-weight: 600;"><a href="{% url 'profile' comment.user.username %}"
-                            style="text-decoration: none; color: #262626;">{{ comment.user.username }}</a></strong>
-                    {{ comment.text }}
+                <div class="comments-list">
+                    {% for comment in post.comment_set.all %}
+                        <div class="comment-item">
+                            <div>
+                                <a href="{% url 'profile' comment.user.username %}" class="comment-author">{{ comment.user.username }}</a>
+                                <span>{{ comment.text }}</span>
+                            </div>
+                            <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
+                        </div>
+                    {% empty %}
+                        <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px 0;">
+                            No comments yet. Write a comment below to start college chat!
+                        </div>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div style="font-size: 13px; color: #8e8e8e;">No comments yet. Be the first to comment!</div>
-                {% endfor %}
+
+                <!-- Comment Submission Form -->
+                <form method="POST" action="{% url 'add_comment' post.id %}" class="detail-comment-form">
+                    {% csrf_token %}
+                    <input type="text" name="text" placeholder="Write a comment..." required class="detail-comment-input">
+                    <button type="submit" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">Post</button>
+                </form>
             </div>
 
-            <form method="POST" action="{% url 'add_comment' post.id %}"
-                style="display: flex; border-top: 1px solid #efefef; padding-top: 10px;">
-                {% csrf_token %}
-                <input type="text" name="text" placeholder="Add a comment..." required
-                    style="flex-grow: 1; border: none; outline: none; font-size: 14px; background: transparent;">
-                <button type="submit"
-                    style="background: none; border: none; color: #0095f6; font-weight: 600; font-size: 14px; cursor: pointer;">Post</button>
-            </form>
         </div>
-    </div>
-</div>
 
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
+    </div>
+
+</div>
 {% endblock %}

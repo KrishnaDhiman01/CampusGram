@@ -1,48 +1,439 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CampusGram — Connect With Your College Community</title>
+    
+    <!-- Google Fonts: Outfit for sleek, modern campus vibes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     {% block extra_style %}{% endblock %}
+    
     <style>
-        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f0f4f8; }
-        nav.base-nav { background: #003366; padding: 12px 24px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,51,102,0.15); }
-        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; }
-        .nav-links a { margin-left: 18px; text-decoration: none; color: #cce0ff; font-weight: 600; transition: color 0.2s; }
-        .nav-links a:hover { color: #ffffff; }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        /* Modern CSS Reset & Variable Tokens */
+        :root {
+            --primary: #003366;
+            --primary-light: #e6f0fa;
+            --primary-dark: #002244;
+            --accent: #f59e0b;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        form { display: inline-block; text-align: left; border: 1px solid #cce0ff; padding: 20px; border-radius: 8px; background: white; }
-        input, textarea { display: block; margin-bottom: 12px; padding: 10px; width: 100%; border: 1px solid #cce0ff; border-radius: 6px; }
-        button { background: #003366; color: white; padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #00509e; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        .error { color: #d32f2f; }
-        .success { color: #2e7d32; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--background);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 80px; /* Safe buffer for bottom nav */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Desktop Sticky Top Navbar */
+        nav.base-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+        }
+
+        .logo i {
+            stroke-width: 2.5;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-logout {
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ef4444;
+            padding: 8px 14px;
+            border: 1px solid #fee2e2;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        .btn-login-nav {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            padding: 8px 14px;
+            transition: var(--transition);
+        }
+
+        .btn-signup-nav {
+            text-decoration: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 6px -1px rgba(0, 51, 102, 0.2);
+            transition: var(--transition);
+        }
+
+        .btn-signup-nav:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Unread Badge */
+        .badge {
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            border: 2px solid white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Container Layout */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Forms Layout & General Styling */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+        }
+
+        form.form-styled {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input.input-styled, textarea.input-styled, select.input-styled {
+            width: 100%;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input.input-styled:focus, textarea.input-styled:focus, select.input-styled:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.08);
+        }
+
+        button.btn-primary {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 51, 102, 0.15);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button.btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        button.btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Success & Error Alert Messages */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Persistent Bottom Nav Bar (Mobile Only) */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: 10px 0;
+            z-index: 1000;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        }
+
+        .bottom-nav-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .bottom-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            flex: 1;
+        }
+
+        .bottom-link i {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2;
+        }
+
+        .bottom-link:hover, .bottom-link.active {
+            color: var(--primary);
+        }
+
+        .bottom-link.active i {
+            fill: var(--primary-light);
+            stroke-width: 2.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Screens Styling & Layout Shifts */
+        @media (max-width: 768px) {
+            nav.base-nav {
+                padding: 12px 16px;
+            }
+
+            .logo span {
+                font-size: 1.3rem;
+            }
+
+            /* Hide full links in top nav for authenticated users to avoid clutter */
+            .nav-links .nav-link {
+                display: none;
+            }
+
+            .btn-logout {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            .container {
+                padding: 14px;
+            }
+
+            /* Show bottom navigation bar */
+            .bottom-nav {
+                display: block;
+            }
+
+            body {
+                padding-bottom: 90px;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <!-- Sticky Header Top Navbar -->
     <nav class="base-nav">
-        <div class="logo">CampusGram</div>
-        <div class="nav-links">
-            {% if user.is_authenticated %}
-                <a href="{% url 'feed' %}">Campus Feed</a>
-                <a href="{% url 'search_users' %}">Search Students</a>
-                <a href="{% url 'create_post' %}">Share Post</a>
-                <a href="{% url 'profile' user.username %}">Profile</a>
-                <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'signup' %}">Signup</a>
-            {% endif %}
+        <div class="nav-container">
+            <a href="{% url 'feed' %}" class="logo">
+                <i data-lucide="graduation-cap"></i>
+                <span>CampusGram</span>
+            </a>
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'feed' %}" class="nav-link {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
+                        <i data-lucide="home"></i> Feed
+                    </a>
+                    <a href="{% url 'search_users' %}" class="nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
+                        <i data-lucide="search"></i> Search
+                    </a>
+                    <a href="{% url 'create_post' %}" class="nav-link {% if request.resolver_match.url_name == 'create_post' %}active{% endif %}">
+                        <i data-lucide="plus-circle"></i> Share
+                    </a>
+                    <a href="{% url 'notifications' %}" class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" style="position: relative;">
+                        <i data-lucide="bell"></i> Inbox
+                        {% if unread_notifications_count > 0 %}
+                            <span class="badge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'profile' user.username %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        <i data-lucide="user"></i> Profile
+                    </a>
+                    <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-login-nav">Login</a>
+                    <a href="{% url 'signup' %}" class="btn-signup-nav">Join Now</a>
+                {% endif %}
+            </div>
         </div>
     </nav>
 
+    <!-- Content Area Container -->
     <div class="container">
+        <!-- Toast Notification Alert Messages -->
         {% if messages %}
             {% for message in messages %}
-                <div style="text-align: center; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-weight: bold; {% if message.tags == 'success' %}background: #e8f5e9; color: #2e7d32;{% else %}background: #ffebee; color: #d32f2f;{% endif %}">
-                    {{ message }}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                    {% if message.tags == 'success' %}
+                        <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                    {% else %}
+                        <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
+                    {% endif %}
+                    <span>{{ message }}</span>
                 </div>
             {% endfor %}
         {% endif %}
@@ -51,5 +442,42 @@
         {% endblock %}
     </div>
 
+    <!-- Mobile Global Bottom Navigation Bar (Auth Users Only) -->
+    {% if user.is_authenticated %}
+        <div class="bottom-nav">
+            <div class="bottom-nav-container">
+                <a href="{% url 'feed' %}" class="bottom-link {% if request.resolver_match.url_name == 'feed' %}active{% endif %}">
+                    <i data-lucide="home"></i>
+                    <span>Feed</span>
+                </a>
+                <a href="{% url 'search_users' %}" class="bottom-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
+                    <i data-lucide="search"></i>
+                    <span>Search</span>
+                </a>
+                <a href="{% url 'create_post' %}" class="bottom-link {% if request.resolver_match.url_name == 'create_post' %}active{% endif %}">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Post</span>
+                </a>
+                <a href="{% url 'notifications' %}" class="bottom-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                    <span style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
+                        <i data-lucide="bell"></i>
+                        {% if unread_notifications_count > 0 %}
+                            <span class="badge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </span>
+                    <span>Inbox</span>
+                </a>
+                <a href="{% url 'profile' user.username %}" class="bottom-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i data-lucide="user"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Global Lucide Icon Initialization -->
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

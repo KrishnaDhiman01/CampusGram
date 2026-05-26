@@ -23,10 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-weuxthr1gjz+wr1xm@9&0&di=d9suw0una^m&=j8cp4%*g9li3"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+
 
 # Application definition
 
@@ -62,6 +63,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.unread_notifications",
             ],
         },
     },
@@ -130,9 +132,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media Files (For user uploads)
 import os
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Redirects after Login/Logout
 LOGIN_REDIRECT_URL = 'feed'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
+STATIC_ROOT = BASE_DIR / 'staticfiles'

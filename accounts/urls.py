@@ -19,6 +19,7 @@ urlpatterns = [
     path('follow/<str:username>/', views.follow_user_view, name='follow_user'),
     path('comment/<int:post_id>/', views.add_comment_view, name='add_comment'),
     path('search/', views.search_users_view, name='search_users'),
+    path('notifications/', views.notifications_view, name='notifications'),
     path('post/<int:post_id>/', views.post_detail_view, name='post_detail'),
     path('post/<int:post_id>/delete/', views.delete_post_view, name='delete_post'),
 ]

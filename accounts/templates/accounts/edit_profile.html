@@ -1,28 +1,80 @@
 {% extends 'accounts/base.html' %}
 
+{% block extra_style %}
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 30px auto;
+    }
+    
+    .form-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--primary);
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+    }
+    
+    .form-subtitle {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+    }
+
+    .upload-file-wrapper {
+        border: 1px solid var(--border);
+        background: #f8fafc;
+        border-radius: var(--radius-md);
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container" style="max-width: 600px; margin: 0 auto;">
+<div class="form-container">
     <div class="card">
-        <h2>Edit Profile</h2>
-        <form method="POST" enctype="multipart/form-data">
+        <h2 class="form-title">Edit Profile</h2>
+        <p class="form-subtitle">Update your personal bio, department, semester year, and customize your profile photo.</p>
+
+        <form method="POST" enctype="multipart/form-data" class="form-styled">
             {% csrf_token %}
-            
-            <label style="font-weight: 600;">Update Bio</label>
-            <textarea name="bio" rows="4">{{ user.profile.bio }}</textarea>
-            
-            <label style="font-weight: 600; margin-top: 12px; display: block;">Department</label>
-            <input type="text" name="department" value="{{ user.profile.department }}" placeholder="e.g. Computer Science, MBA" style="width: 100%; box-sizing: border-box;">
-            
-            <label style="font-weight: 600; margin-top: 12px; display: block;">Year / Semester</label>
-            <input type="text" name="year" value="{{ user.profile.year }}" placeholder="e.g. 2nd Year, Semester 4" style="width: 100%; box-sizing: border-box;">
-            
-            <label style="font-weight: 600; margin-top: 12px; display: block;">Change Profile Image</label>
-            <input type="file" name="profile_img" style="margin-bottom: 15px;">
-            
-            <button type="submit">Save Changes</button>
+
+            <div class="form-group">
+                <label>Department</label>
+                <input type="text" name="department" value="{{ user.profile.department }}" placeholder="e.g. Computer Science & Engineering, MBA" class="input-styled" required>
+            </div>
+
+            <div class="form-group">
+                <label>Year / Semester</label>
+                <input type="text" name="year" value="{{ user.profile.year }}" placeholder="e.g. 3rd Year, Semester 6" class="input-styled" required>
+            </div>
+
+            <div class="form-group">
+                <label>Short Bio / Status</label>
+                <textarea name="bio" rows="4" class="input-styled" placeholder="Write a short college bio..." style="resize: none;">{{ user.profile.bio }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Profile Avatar Picture</label>
+                <div class="upload-file-wrapper">
+                    <i data-lucide="camera" style="width: 20px; height: 20px; color: var(--text-muted);"></i>
+                    <input type="file" name="profile_img" accept="image/*" style="font-size: 0.85rem; cursor: pointer;">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                <i data-lucide="save" style="width: 18px; height: 18px;"></i>
+                <span>Save Changes</span>
+            </button>
         </form>
-        <div style="margin-top: 14px;">
-            <a href="{% url 'profile' user.username %}" class="button-secondary">Back to Profile</a>
+
+        <div style="margin-top: 18px; text-align: center; border-top: 1px solid var(--border); padding-top: 14px;">
+            <a href="{% url 'profile' user.username %}" style="text-decoration: none; color: var(--text-muted); font-size: 0.88rem; font-weight: 600; transition: var(--transition);">
+                Cancel and return to Profile
+            </a>
         </div>
     </div>
 </div>

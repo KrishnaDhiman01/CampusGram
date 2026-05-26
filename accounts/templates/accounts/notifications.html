@@ -1,0 +1,253 @@
+{% extends 'accounts/base.html' %}
+
+{% block extra_style %}
+<style>
+    .notifications-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding-bottom: 40px;
+    }
+
+    .notifications-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .notifications-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--primary);
+        letter-spacing: -0.5px;
+    }
+
+    .notifications-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .notification-item {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .notification-item:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-light);
+        transform: translateY(-1px);
+    }
+
+    .notification-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-grow: 1;
+    }
+
+    .notification-icon-wrapper {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .icon-like {
+        background: #fef2f2;
+        color: #ef4444;
+    }
+
+    .icon-comment {
+        background: #eff6ff;
+        color: #3b82f6;
+    }
+
+    .icon-follow {
+        background: #f0fdf4;
+        color: #22c55e;
+    }
+
+    .notification-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .notification-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .notification-text {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .notification-text strong {
+        color: var(--primary);
+    }
+
+    .notification-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .notification-thumbnail {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-sm);
+        object-fit: cover;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .notification-text-fallback {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-sm);
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-align: center;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    
+    <div class="notifications-header">
+        <h2 class="notifications-title">Activity Inbox</h2>
+        <span style="font-size: 0.85rem; background: var(--primary-light); color: var(--primary); font-weight: 600; padding: 4px 10px; border-radius: 20px;">
+            All Caught Up
+        </span>
+    </div>
+
+    <div class="notifications-list">
+        {% for notification in notifications %}
+            {% if notification.notification_type == 'like' %}
+                <!-- Like Notification -->
+                <a href="{% url 'post_detail' notification.post.id %}" class="notification-item">
+                    <div class="notification-left">
+                        <div class="notification-icon-wrapper icon-like">
+                            <i data-lucide="heart" fill="#ef4444" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        {% if notification.sender.profile.profile_img %}
+                            <img src="{{ notification.sender.profile.profile_img.url }}" class="notification-avatar" alt="User">
+                        {% else %}
+                            <div class="notification-avatar" style="background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--text-muted);">
+                                {{ notification.sender.username|slice:":2"|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="notification-details">
+                            <div class="notification-text">
+                                <strong>{{ notification.sender.username }}</strong> liked your post
+                            </div>
+                            <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% if notification.post.image %}
+                        <img src="{{ notification.post.image.url }}" class="notification-thumbnail" alt="Thumbnail">
+                    {% else %}
+                        <div class="notification-text-fallback">POST</div>
+                    {% endif %}
+                </a>
+
+            {% elif notification.notification_type == 'comment' %}
+                <!-- Comment Notification -->
+                <a href="{% url 'post_detail' notification.post.id %}" class="notification-item">
+                    <div class="notification-left">
+                        <div class="notification-icon-wrapper icon-comment">
+                            <i data-lucide="message-square" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        {% if notification.sender.profile.profile_img %}
+                            <img src="{{ notification.sender.profile.profile_img.url }}" class="notification-avatar" alt="User">
+                        {% else %}
+                            <div class="notification-avatar" style="background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--text-muted);">
+                                {{ notification.sender.username|slice:":2"|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="notification-details">
+                            <div class="notification-text">
+                                <strong>{{ notification.sender.username }}</strong> commented on your post: 
+                                <span style="color: var(--text-muted); font-style: italic;">"{{ notification.post.comment_set.last.text|truncatechars:40 }}"</span>
+                            </div>
+                            <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% if notification.post.image %}
+                        <img src="{{ notification.post.image.url }}" class="notification-thumbnail" alt="Thumbnail">
+                    {% else %}
+                        <div class="notification-text-fallback">POST</div>
+                    {% endif %}
+                </a>
+
+            {% elif notification.notification_type == 'follow' %}
+                <!-- Follow Notification -->
+                <a href="{% url 'profile' notification.sender.username %}" class="notification-item">
+                    <div class="notification-left">
+                        <div class="notification-icon-wrapper icon-follow">
+                            <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        {% if notification.sender.profile.profile_img %}
+                            <img src="{{ notification.sender.profile.profile_img.url }}" class="notification-avatar" alt="User">
+                        {% else %}
+                            <div class="notification-avatar" style="background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--text-muted);">
+                                {{ notification.sender.username|slice:":2"|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="notification-details">
+                            <div class="notification-text">
+                                <strong>{{ notification.sender.username }}</strong> started following you!
+                            </div>
+                            <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.75rem; background: var(--primary-light); color: var(--primary); font-weight: 700; padding: 4px 10px; border-radius: 12px;">
+                        PROFILE
+                    </div>
+                </a>
+            {% endif %}
+        {% empty %}
+            <!-- Empty state -->
+            <div class="card" style="text-align: center; padding: 60px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                    <i data-lucide="bell-off" style="width: 28px; height: 28px;"></i>
+                </div>
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: var(--primary); margin: 0;">No Activity Yet</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 320px; line-height: 1.5; margin: 0;">
+                    When other students follow you, like your posts, or comment on your campus updates, they'll show up here!
+                </p>
+                <a href="{% url 'feed' %}" class="btn-primary" style="margin-top: 8px; text-decoration: none; padding: 10px 18px; font-size: 0.88rem;">
+                    Go to Feed
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

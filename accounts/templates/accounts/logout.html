@@ -1,10 +1,19 @@
 {% extends 'accounts/base.html' %}
 
 {% block content %}
-<div style="text-align: center; margin-top: 50px;">
-    <h2>You have been logged out.</h2>
-    <p>See you next time!</p>
-    <br>
-    <a href="{% url 'login' %}" style="background: #0095f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Log In Again</a>
+<div style="max-width: 400px; margin: 60px auto; text-align: center;">
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 40px 24px;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <i data-lucide="log-out" style="width: 28px; height: 28px;"></i>
+        </div>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--primary); margin: 0; letter-spacing: -0.5px;">Logged Out Successfully</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin: 0;">
+            Thank you for using CampusGram! Your session has been safely closed.
+        </p>
+        <a href="{% url 'login' %}" class="btn-primary" style="text-decoration: none; width: 100%; justify-content: center; margin-top: 8px;">
+            <span>Log In Again</span>
+            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+        </a>
+    </div>
 </div>
 {% endblock %}

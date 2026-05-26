@@ -1,87 +1,200 @@
 {% extends 'accounts/base.html' %}
 
-{% block content %}
+{% block extra_style %}
 <style>
     .search-container {
         max-width: 600px;
         margin: 20px auto;
-        padding-bottom: 80px;
+        padding-bottom: 40px;
     }
-    .search-input {
+    
+    .search-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--primary);
+        letter-spacing: -0.5px;
+        margin-bottom: 16px;
+    }
+
+    .search-box-wrapper {
+        position: relative;
+        margin-bottom: 24px;
+    }
+
+    .search-input-styled {
         width: 100%;
-        padding: 12px 15px;
-        border: 1px solid #dbdbdb;
-        border-radius: 8px;
-        font-size: 16px;
+        padding: 14px 16px 14px 44px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        font-family: inherit;
+        font-size: 1rem;
+        color: var(--text-main);
         outline: none;
-        margin-bottom: 20px;
-        box-sizing: border-box;
+        transition: var(--transition);
+        box-shadow: var(--shadow-sm);
     }
-    .search-input:focus {
-        border-color: #8e8e8e;
+
+    .search-input-styled:focus {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md), 0 0 0 3px rgba(0, 51, 102, 0.08);
     }
-    .user-card {
+
+    .search-icon-inside {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    /* Student Card List */
+    .student-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .student-card {
         display: flex;
         align-items: center;
-        padding: 12px;
-        background: white;
-        border: 1px solid #dbdbdb;
-        border-radius: 8px;
-        margin-bottom: 10px;
+        justify-content: space-between;
+        padding: 14px 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
         text-decoration: none;
-        color: #262626;
-        transition: background 0.2s;
+        color: inherit;
+        transition: var(--transition);
+        box-shadow: var(--shadow-sm);
     }
-    .user-card:hover {
-        background: #f9f9f9;
+
+    .student-card:hover {
+        border-color: var(--primary-light);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
     }
-    .user-pic {
-        width: 40px;
-        height: 40px;
+
+    .student-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .student-avatar {
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         object-fit: cover;
-        margin-right: 15px;
-        border: 1px solid #dbdbdb;
+        border: 1px solid var(--border);
+        background: #f1f5f9;
+        flex-shrink: 0;
+    }
+
+    .student-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .student-username {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .student-dept {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .student-action-badge {
+        font-size: 0.75rem;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: var(--radius-md);
+        transition: var(--transition);
+    }
+
+    .student-card:hover .student-action-badge {
+        background: var(--primary);
+        color: white;
     }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="search-container">
-    <h2 style="font-family: 'Segoe UI', sans-serif; font-weight: 800; margin-bottom: 15px; color: #003366;">Search Students</h2>
+    <h2 class="search-title">Search College Students</h2>
     
-    <form method="GET" action="{% url 'search_users' %}" style="padding: 0; border: none; background: transparent; width: 100%;">
-        <input type="text" name="q" class="search-input" placeholder="Search students..." value="{{ query }}">
-        <button type="submit" style="display: none;">Search</button>
+    <!-- Styled Form -->
+    <form method="GET" action="{% url 'search_users' %}" style="border: none; background: transparent; padding: 0; width: 100%;">
+        <div class="search-box-wrapper">
+            <i data-lucide="search" class="search-icon-inside" style="width: 20px; height: 20px;"></i>
+            <input type="text" name="q" class="search-input-styled" placeholder="Search by username (e.g. priya, rahul)..." value="{{ query }}" autocomplete="off" autofocus>
+            <button type="submit" style="display: none;">Search</button>
+        </div>
     </form>
 
-    <div>
+    <div class="student-list">
         {% if query %}
-            <h4 style="margin-bottom: 10px; color: #8e8e8e; font-size: 14px;">Search Results for "{{ query }}"</h4>
+            <h4 style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="sliders-horizontal" style="width: 16px; height: 16px;"></i> Search Results for "{{ query }}"
+            </h4>
+            
             {% for user_obj in users %}
-                <a href="{% url 'profile' user_obj.username %}" class="user-card">
-                    {% if user_obj.profile.profile_img %}
-                        <img src="{{ user_obj.profile.profile_img.url }}" class="user-pic" alt="Profile">
-                    {% else %}
-                        <div class="user-pic" style="background-color: #efefef;"></div>
-                    {% endif %}
-                    <div>
-                        <div style="font-weight: 600; font-size: 14px;">{{ user_obj.username }}</div>
+                <a href="{% url 'profile' user_obj.username %}" class="student-card">
+                    <div class="student-left">
+                        {% if user_obj.profile.profile_img %}
+                            <img src="{{ user_obj.profile.profile_img.url }}" class="student-avatar" alt="Avatar">
+                        {% else %}
+                            <div class="student-avatar" style="display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary); background: var(--primary-light); font-size: 14px;">
+                                {{ user_obj.username|slice:":2"|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="student-details">
+                            <span class="student-username">{{ user_obj.username }}</span>
+                            <span class="student-dept">
+                                <i data-lucide="graduation-cap" style="width: 12px; height: 12px;"></i>
+                                {{ user_obj.profile.department|default:"CampusGram Student" }}
+                                {% if user_obj.profile.year %}| {{ user_obj.profile.year }}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="student-action-badge">
+                        View Profile &rarr;
                     </div>
                 </a>
             {% empty %}
-                <div style="text-align: center; color: #8e8e8e; margin-top: 30px;">
-                    No students found matching "{{ query }}"
+                <!-- Empty State -->
+                <div class="card" style="text-align: center; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                        <i data-lucide="user-x" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin: 0;">No Students Found</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 260px; line-height: 1.4; margin: 0;">
+                        We couldn't find any students matching "{{ query }}". Try searching for a different username.
+                    </p>
                 </div>
             {% endfor %}
         {% else %}
-            <div style="text-align: center; color: #8e8e8e; margin-top: 30px;">
-                Type a username to find connected students.
+            <!-- Initial Placeholder state -->
+            <div class="card" style="text-align: center; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                    <i data-lucide="users" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin: 0;">Find College Mates</h4>
+                <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 280px; line-height: 1.4; margin: 0;">
+                    Type a friend's name or college username to discover their posts, academic details, and stay connected.
+                </p>
             </div>
         {% endif %}
     </div>
 </div>
-
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
 {% endblock %}

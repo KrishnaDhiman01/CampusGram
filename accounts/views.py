@@ -8,7 +8,7 @@ from django.http import Http404
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
 from .forms import SignUpForm
-from .models import Post, Follow, Like, Comment, Profile
+from .models import Post, Follow, Like, Comment, Profile, Notification
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -29,18 +29,81 @@ def feed_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
-    posts = Post.objects.filter(Q(user__in=following_users) | Q(user=request.user)).order_by('-created_at')
-    posts = posts.prefetch_related('comment_set', 'user__profile', 'like_set')
+    category_filter = request.GET.get('category')
+    tag_filter = request.GET.get('tag')
+    active_filter = None
 
+    if category_filter:
+        posts = Post.objects.filter(category=category_filter).order_by('-created_at')
+        active_filter = f"Category: {category_filter}"
+    elif tag_filter:
+        clean_tag = tag_filter.replace('#', '')
+        # Filter posts whose caption or category matches the tag
+        posts = Post.objects.filter(
+            Q(caption__icontains=clean_tag) | Q(category__icontains=clean_tag)
+        ).order_by('-created_at')
+        active_filter = f"Tag: #{clean_tag}"
+    else:
+        following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
+        posts = Post.objects.filter(Q(user__in=following_users) | Q(user=request.user)).order_by('-created_at')
+
+    posts = posts.prefetch_related('comment_set', 'user__profile', 'like_set')
 
     liked_post_ids = set(
         Like.objects.filter(user=request.user, post__in=posts).values_list('post_id', flat=True)
     )
 
+    # Static but highly clean & professional data for Campus Notice Board
+    campus_notices = [
+        {
+            'icon': 'award',
+            'title': 'Coding Competition Tomorrow',
+            'detail': 'Organized by Coding Club. Starts at 10:00 AM in Lab 3. Exciting prizes!',
+            'tag': 'Competition',
+            'bg': 'hsl(215, 60%, 25%)',
+            'text': '#fff'
+        },
+        {
+            'icon': 'briefcase',
+            'title': 'Placement Drive Next Week',
+            'detail': 'Pre-placement talk by tech leaders on Monday. Mandatory for final years.',
+            'tag': 'Placements',
+            'bg': '#e3f2fd',
+            'text': '#0d47a1'
+        },
+        {
+            'icon': 'alert-circle',
+            'title': 'Library Closed on Sunday',
+            'detail': 'Annual system maintenance. Digital catalog offline from 8 AM to 6 PM.',
+            'tag': 'Notice',
+            'bg': '#fff3e0',
+            'text': '#e65100'
+        },
+        {
+            'icon': 'zap',
+            'title': 'Tech Fest Registration Open',
+            'detail': 'Register early for the early bird discount! Hackathons, web dev, and gaming.',
+            'tag': 'Events',
+            'bg': '#e8f5e9',
+            'text': '#1b5e20'
+        }
+    ]
+
+    # Trending Campus Tags
+    trending_tags = [
+        {'name': '#TechFest', 'category_name': 'Event', 'count': '18 posts'},
+        {'name': '#Placements', 'category_name': 'Announcement', 'count': '12 posts'},
+        {'name': '#StudyMaterial', 'category_name': 'Study Material', 'count': '25 posts'},
+        {'name': '#LostAndFound', 'category_name': 'Lost & Found', 'count': '7 posts'},
+        {'name': '#CampusLife', 'category_name': 'Fun Moment', 'count': '42 posts'},
+    ]
+
     return render(request, 'accounts/feed.html', {
         'posts': posts,
         'liked_post_ids': liked_post_ids,
+        'campus_notices': campus_notices,
+        'trending_tags': trending_tags,
+        'active_filter': active_filter,
     })
 
 def profile_view(request, username):
@@ -100,6 +163,17 @@ def like_post_view(request, post_id):
     like, created = Like.objects.get_or_create(user=request.user, post=post)
     if not created:
         like.delete()
+        # Delete corresponding notification
+        Notification.objects.filter(sender=request.user, post=post, notification_type='like').delete()
+    else:
+        # Create notification if liking other user's post
+        if post.user != request.user:
+            Notification.objects.create(
+                recipient=post.user,
+                sender=request.user,
+                post=post,
+                notification_type='like'
+            )
     return redirect(request.META.get('HTTP_REFERER', 'feed'))
 
 @login_required
@@ -109,6 +183,15 @@ def follow_user_view(request, username):
         follow, created = Follow.objects.get_or_create(follower=request.user, following=user_to_follow)
         if not created:
             follow.delete()
+            # Delete corresponding notification
+            Notification.objects.filter(sender=request.user, recipient=user_to_follow, notification_type='follow').delete()
+        else:
+            # Create notification
+            Notification.objects.create(
+                recipient=user_to_follow,
+                sender=request.user,
+                notification_type='follow'
+            )
     return redirect('profile', username=username)
 
 @login_required
@@ -129,7 +212,15 @@ def add_comment_view(request, post_id):
     if request.method == 'POST':
         text = request.POST.get('text')
         if text:
-            Comment.objects.create(user=request.user, post=post, text=text)
+            comment = Comment.objects.create(user=request.user, post=post, text=text)
+            # Create notification if comment is not by post owner
+            if post.user != request.user:
+                Notification.objects.create(
+                    recipient=post.user,
+                    sender=request.user,
+                    post=post,
+                    notification_type='comment'
+                )
     return redirect(request.META.get('HTTP_REFERER', 'feed'))
 
 def logout_view(request):
@@ -155,6 +246,13 @@ def delete_post_view(request, post_id):
 def post_detail_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     liked_post_ids = set()
-    if Like.objects.filter(user=request.user, post=post).exists():
+    if request.user.is_authenticated and Like.objects.filter(user=request.user, post=post).exists():
         liked_post_ids.add(post.id)
     return render(request, 'accounts/post_detail.html', {'post': post, 'liked_post_ids': liked_post_ids})
+
+@login_required
+def notifications_view(request):
+    notifications = Notification.objects.filter(recipient=request.user).order_by('-created_at')
+    # Mark all unread notifications as read when the page is visited
+    Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    return render(request, 'accounts/notifications.html', {'notifications': notifications})
